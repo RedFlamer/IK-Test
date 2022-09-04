@@ -1,4 +1,4 @@
 <?xml version="1.0"?>
-<mod name="Reworked Enemy AI">
+<mod name="ik test">
 	<tweak definition="xml/cop_def.animation_def"/>
 </mod>
