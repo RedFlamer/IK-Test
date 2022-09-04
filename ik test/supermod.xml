@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
 <mod name="ik test">
 	<tweak definition="xml/cop_def.animation_def"/>
+	<tweak definition="xml/std.animation_states"/>
 </mod>
