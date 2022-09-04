@@ -5,16 +5,6 @@
 			<xml/>
 			<modifier name="weapon_hold_l_arm"/>
 		</search>
-		<target mode="attributes">
-			<attr name="blend_in" value="0"/> <!-- buges on movement otherwise -->
-			<attr name="blend_out" value="0"/> <!-- buges on movement otherwise -->
-		</target>
-	</tweak>
-	<tweak version="2" name="anims/units/enemies/cop/cop_def" extension="animation_def">
-		<search>
-			<xml/>
-			<modifier name="weapon_hold_l_arm"/>
-		</search>
 		<target mode="attach">
 			<target name="LeftHand"/>
 			<bone name="LeftShoulder" translate="0.4"/>
