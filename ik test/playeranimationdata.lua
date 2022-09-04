@@ -16,11 +16,13 @@ local ik_displacement = {
 	[Idstring("units/payday2/weapons/wpn_npc_saiga/wpn_npc_saiga"):key()] = Vector3(0, 6, 7),
 	[Idstring("units/payday2/weapons/wpn_npc_lmg_m249/wpn_npc_lmg_m249"):key()] = Vector3(0, 2, 5),
 	[Idstring("units/payday2/weapons/wpn_npc_benelli/wpn_npc_benelli"):key()] = Vector3(0, 6, 5),
-	[Idstring("units/payday2/weapons/wpn_npc_g36/wpn_npc_g36"):key()] = Vector3(0, -5, 6),
+	[Idstring("units/payday2/weapons/wpn_npc_g36/wpn_npc_g36"):key()] = Vector3(0, -2, 6),
 	[Idstring("units/payday2/weapons/wpn_npc_ump/wpn_npc_ump"):key()] = Vector3(0, -4, 7)
 }
 
-local base_displacement = Vector3(-10, 28, -5)
+local base_displacement = Vector3(-7, 20, -5)
+local base_displacement_player = Vector3(-8, 0, -1)
+local base_displacement_player_v = Vector3(-10, 0, -12)
 
 local tmp_vec1 = Vector3()
 
@@ -39,6 +41,33 @@ Hooks:PostHook(PlayerAnimationData, "init", "ik_init", function(self, unit)
 		self._modifier = self._machine:get_modifier(idstr_weapon_hold)
 	end
 )
+
+-- aint nobody got time to restart constantly
+--[[
+local yaw = 0
+local pitch = 0
+local roll = 0
+Hooks:Add("GameSetupUpdate", "asdf", function (t, dt)
+	if Input:keyboard():down(Idstring("left")) then
+		yaw = yaw + dt * 45
+		log("yaw", yaw, "pitch", pitch, "roll", roll)
+	elseif Input:keyboard():down(Idstring("right")) then
+		yaw = yaw - dt * 45
+		log("yaw", yaw, "pitch", pitch, "roll", roll)
+	elseif Input:keyboard():down(Idstring("up")) then
+		roll = roll + dt * 45
+		log("yaw", yaw, "pitch", pitch, "roll", roll)
+	elseif Input:keyboard():down(Idstring("down")) then
+		roll = roll - dt * 45
+		log("yaw", yaw, "pitch", pitch, "roll", roll)
+	elseif Input:keyboard():down(Idstring("n")) then
+		pitch = pitch + dt * 45
+		log("yaw", yaw, "pitch", pitch, "roll", roll)
+	elseif Input:keyboard():down(Idstring("m")) then
+		pitch = pitch - dt * 45
+		log("yaw", yaw, "pitch", pitch, "roll", roll)
+	end
+end)]]
 
 function PlayerAnimationData:update(unit)
 	local weapon = unit:inventory():equipped_unit()
@@ -72,22 +101,31 @@ function PlayerAnimationData:update(unit)
 
 		local rot = weapon:rotation()
 		local displacement = tmp_vec1
-		
-		-- default offset
-		mvec3_set(displacement, base_displacement)
 
 		if self._weapon_displacement then
+			-- default offset
+			mvec3_set(displacement, base_displacement)
+
 			mvec3_add(displacement, self._weapon_displacement)
 			mvec3_rotate(displacement, rot)
 			mvec3_add(displacement, weapon:position())
 		else
+			-- default offset
+			mvec3_set(displacement, self._grip_is_v and base_displacement_player_v or base_displacement_player)
+
 			mvec3_rotate(displacement, rot)
 			mvec3_add(displacement, self._weapon_grip:position())
 		end
 
 		Draw:brush(Color.red:with_alpha(0.5)):sphere(displacement, 5)
 
-		mrotation.set_yaw_pitch_roll(rot, rot:yaw(), rot:pitch() - 90, rot:roll())
+		if self._grip_is_v then
+			mrotation.set_yaw_pitch_roll(rot, rot:yaw(), rot:pitch() +  10, rot:roll() - 25)
+			--mrotation.set_yaw_pitch_roll(rot, rot:yaw() + yaw, rot:pitch() + pitch, rot:roll() + roll)
+		else
+			mrotation.set_yaw_pitch_roll(rot, rot:yaw() + 28, rot:pitch() - 82, rot:roll() + 33)
+			--mrotation.set_yaw_pitch_roll(rot, rot:yaw() + yaw, rot:pitch() + pitch, rot:roll() + roll)
+		end
 
 		self._modifier:set_target_position(displacement)
 		self._modifier:set_target_rotation(rot)
