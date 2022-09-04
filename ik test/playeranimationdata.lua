@@ -21,7 +21,7 @@ local ik_displacement = {
 }
 
 local base_displacement = Vector3(-8, 23, -6)
-local base_displacement_player = Vector3(-8, 0, 0)
+local base_displacement_player = Vector3(-8, 0, -1)
 local base_displacement_player_v = Vector3(-11, 0, -1)
 
 local tmp_vec1 = Vector3()
@@ -92,7 +92,7 @@ function PlayerAnimationData:update(unit)
 						mvec3_sub(self._grip_offset, weapon:position())
 						mvec3_rotate(self._grip_offset, weapon:rotation():inverse())
 						local y = math.clamp(self._grip_offset.y + (vgrip and oobb:size().y * 0.5 or 0), 10, 30)
-						local z = math.clamp(self._grip_offset.z - (not vgrip and oobb:size().z + 0.5 or 0), -5, 2)
+						local z = math.clamp(self._grip_offset.z - (not vgrip and oobb:size().z * 0.5 or 0), -5, 3)
 						mvec3_set_static(self._grip_offset, 0, y, z) -- limit offset to avoid stretchy arms and inaccurate oobbs
 						--log(tostring(self._grip_offset))
 						mvec3_add(self._grip_offset, vgrip and base_displacement_player_v or base_displacement_player)
