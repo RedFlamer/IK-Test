@@ -20,9 +20,9 @@ local ik_displacement = {
 	[Idstring("units/payday2/weapons/wpn_npc_ump/wpn_npc_ump"):key()] = Vector3(0, -4, 7)
 }
 
-local base_displacement = Vector3(-7, 20, -5)
-local base_displacement_player = Vector3(-8, 0, -1)
-local base_displacement_player_v = Vector3(-10, 0, -12)
+local base_displacement = Vector3(-8, 23, -7)
+local base_displacement_player = Vector3(-8, 0, -8)
+local base_displacement_player_v = Vector3(-11, 0, -5)
 
 local tmp_vec1 = Vector3()
 
@@ -46,26 +46,19 @@ Hooks:PostHook(PlayerAnimationData, "init", "ik_init", function(self, unit)
 --[[
 local yaw = 0
 local pitch = 0
-local roll = 0
 Hooks:Add("GameSetupUpdate", "asdf", function (t, dt)
 	if Input:keyboard():down(Idstring("left")) then
 		yaw = yaw + dt * 45
-		log("yaw", yaw, "pitch", pitch, "roll", roll)
+		log("yaw", yaw, "pitch", pitch)
 	elseif Input:keyboard():down(Idstring("right")) then
 		yaw = yaw - dt * 45
-		log("yaw", yaw, "pitch", pitch, "roll", roll)
+		log("yaw", yaw, "pitch", pitch)
 	elseif Input:keyboard():down(Idstring("up")) then
-		roll = roll + dt * 45
-		log("yaw", yaw, "pitch", pitch, "roll", roll)
-	elseif Input:keyboard():down(Idstring("down")) then
-		roll = roll - dt * 45
-		log("yaw", yaw, "pitch", pitch, "roll", roll)
-	elseif Input:keyboard():down(Idstring("n")) then
 		pitch = pitch + dt * 45
-		log("yaw", yaw, "pitch", pitch, "roll", roll)
-	elseif Input:keyboard():down(Idstring("m")) then
+		log("yaw", yaw, "pitch", pitch)
+	elseif Input:keyboard():down(Idstring("down")) then
 		pitch = pitch - dt * 45
-		log("yaw", yaw, "pitch", pitch, "roll", roll)
+		log("yaw", yaw, "pitch", pitch)
 	end
 end)]]
 
@@ -120,10 +113,10 @@ function PlayerAnimationData:update(unit)
 		Draw:brush(Color.red:with_alpha(0.5)):sphere(displacement, 5)
 
 		if self._grip_is_v then
-			mrotation.set_yaw_pitch_roll(rot, rot:yaw(), rot:pitch() +  10, rot:roll() - 25)
+			mrotation.set_yaw_pitch_roll(rot, rot:yaw(), rot:pitch() +  10, rot:roll())
 			--mrotation.set_yaw_pitch_roll(rot, rot:yaw() + yaw, rot:pitch() + pitch, rot:roll() + roll)
 		else
-			mrotation.set_yaw_pitch_roll(rot, rot:yaw() + 28, rot:pitch() - 82, rot:roll() + 33)
+			mrotation.set_yaw_pitch_roll(rot, rot:yaw() + 28, rot:pitch() - 82, rot:roll())
 			--mrotation.set_yaw_pitch_roll(rot, rot:yaw() + yaw, rot:pitch() + pitch, rot:roll() + roll)
 		end
 
