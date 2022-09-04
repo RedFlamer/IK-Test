@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<mod name="Reworked Enemy AI">
+	<tweak definition="xml/cop_def.animation_def"/>
+</mod>

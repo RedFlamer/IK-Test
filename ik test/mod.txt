@@ -1,0 +1,13 @@
+{
+	"name" : "ik test",
+	"description" : "",
+	"author" : "RedFlame",
+	"contact" : "Discord: RedFlame#3870",
+	"version" : "1",
+	"priority" : "-10",
+	"color" : "0 0 1",
+	"hooks" : [
+		{ "hook_id" : "lib/units/beings/player/playeranimationdata", "script_path" : "playeranimationdata.lua" }
+
+	]
+}
