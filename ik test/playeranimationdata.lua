@@ -20,8 +20,8 @@ local ik_displacement = {
 	[Idstring("units/payday2/weapons/wpn_npc_ump/wpn_npc_ump"):key()] = Vector3(0, -4, 7)
 }
 
-local base_displacement = Vector3(-8, 23, -7)
-local base_displacement_player = Vector3(-8, 0, -8)
+local base_displacement = Vector3(-8, 23, -6)
+local base_displacement_player = Vector3(-8, 0, -6)
 local base_displacement_player_v = Vector3(-11, 0, -5)
 
 local tmp_vec1 = Vector3()
