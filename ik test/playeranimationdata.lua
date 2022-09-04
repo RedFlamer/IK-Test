@@ -21,8 +21,8 @@ local ik_displacement = {
 }
 
 local base_displacement = Vector3(-8, 23, -6)
-local base_displacement_player = Vector3(-8, 0, -6)
-local base_displacement_player_v = Vector3(-11, 0, -5)
+local base_displacement_player = Vector3(-8, 0, 0)
+local base_displacement_player_v = Vector3(-11, 0, -1)
 
 local tmp_vec1 = Vector3()
 
@@ -30,6 +30,9 @@ local mvec3_add = mvector3.add
 local mvec3_not_equal = mvector3.not_equal
 local mvec3_rotate = mvector3.rotate_with
 local mvec3_set = mvector3.set
+local mvec3_set_static = mvector3.set_static
+local mvec3_sub = mvector3.subtract
+local mvec3_copy = mvector3.copy
 
 Hooks:PostHook(PlayerAnimationData, "init", "ik_init", function(self, unit)
 		self._machine = self._unit:anim_state_machine()
@@ -66,27 +69,54 @@ function PlayerAnimationData:update(unit)
 	local weapon = unit:inventory():equipped_unit()
 	if alive(weapon) and (not alive(self._equipped_unit) or self._equipped_unit ~= weapon) then
 		self._equipped_unit = weapon
-		self._weapon_displacement = ik_displacement[weapon:name():key()]
-		local weapon_parts = weapon:base()._parts
-		if weapon_parts and not weapon:base().AKIMBO then
-			if weapon:base()._assembly_complete then
-				local vgrip = managers.weapon_factory:get_part_from_weapon_by_type("vertical_grip", weapon_parts)
-				local fgrip = managers.weapon_factory:get_part_from_weapon_by_type("foregrip", weapon_parts)
-				local grip = vgrip or fgrip
-				if grip and alive(grip.unit) and mvec3_not_equal(weapon:position(), grip.unit:position()) then
-					self._weapon_grip = grip.unit
-					self._grip_is_v = vgrip and true
+		self._grip_offset = nil
+		self._yaw = 28
+		self._pitch = -82
+
+		local displacement = ik_displacement[weapon:name():key()]
+		if displacement then
+			-- NPC weapon hold displacement
+			self._grip_offset = mvec3_copy(displacement)
+			mvec3_add(self._grip_offset, base_displacement)
+		else
+			-- Player weapon hold displacement
+			local weapon_parts = weapon:base()._parts
+			if weapon_parts and not weapon:base().AKIMBO then
+				if weapon:base()._assembly_complete then
+					local vgrip = managers.weapon_factory:get_part_from_weapon_by_type("vertical_grip", weapon_parts)
+					local fgrip = managers.weapon_factory:get_part_from_weapon_by_type("underbarrel", weapon_parts) or managers.weapon_factory:get_part_from_weapon_by_type("foregrip", weapon_parts)
+					local grip = vgrip or fgrip
+					if grip and alive(grip.unit) and mvec3_not_equal(weapon:position(), grip.unit:position()) then
+						local oobb = grip.unit:oobb()
+						self._grip_offset = true and oobb:center() or grip.unit:position()
+						mvec3_sub(self._grip_offset, weapon:position())
+						mvec3_rotate(self._grip_offset, weapon:rotation():inverse())
+						local y = math.clamp(self._grip_offset.y + (vgrip and oobb:size().y * 0.5 or 0), 10, 30)
+						local z = math.clamp(self._grip_offset.z - (not vgrip and oobb:size().z + 0.5 or 0), -5, 2)
+						mvec3_set_static(self._grip_offset, 0, y, z) -- limit offset to avoid stretchy arms and inaccurate oobbs
+						--log(tostring(self._grip_offset))
+						mvec3_add(self._grip_offset, vgrip and base_displacement_player_v or base_displacement_player)
+
+						if vgrip then
+							self._machine:set_global("bullpup", 1)
+							self._yaw = 0
+							self._pitch = 10
+						else
+							self._machine:set_global("bullpup", 0)
+							self._machine:set_global("rifle", 1)
+						end
+					end
+				else
+					-- Wait til assembly is complete
+					self._equipped_unit = nil
 				end
-			else
-				-- Wait til assembly is complete
-				self._equipped_unit = nil
 			end
 		end
 	end
 
 	local upper_seg_rel_t = self._machine:segment_relative_time(idstr_upper)
 	local anim_check = (self.still or self.move or self.dodge) and not self.zipline and not self.act and (not self.upper_body_active or self.upper_body_empty or (self.switch_weapon or self.equip) and upper_seg_rel_t > 0.5 or self.recoil or self.upper_body_hurt)
-	if (self._weapon_displacement or alive(self._weapon_grip)) and anim_check then
+	if self._grip_offset and anim_check then
 		if not self._modifier_on then
 			self._machine:force_modifier(idstr_weapon_hold)
 			self._modifier_on = true
@@ -94,31 +124,13 @@ function PlayerAnimationData:update(unit)
 
 		local rot = weapon:rotation()
 		local displacement = tmp_vec1
+		mvec3_set(displacement, self._grip_offset)
+		mvec3_rotate(displacement, rot)
+		mvec3_add(displacement, weapon:position())
 
-		if self._weapon_displacement then
-			-- default offset
-			mvec3_set(displacement, base_displacement)
+		--Draw:brush(Color.red:with_alpha(0.5)):sphere(displacement, 5)
 
-			mvec3_add(displacement, self._weapon_displacement)
-			mvec3_rotate(displacement, rot)
-			mvec3_add(displacement, weapon:position())
-		else
-			-- default offset
-			mvec3_set(displacement, self._grip_is_v and base_displacement_player_v or base_displacement_player)
-
-			mvec3_rotate(displacement, rot)
-			mvec3_add(displacement, self._weapon_grip:position())
-		end
-
-		Draw:brush(Color.red:with_alpha(0.5)):sphere(displacement, 5)
-
-		if self._grip_is_v then
-			mrotation.set_yaw_pitch_roll(rot, rot:yaw(), rot:pitch() +  10, rot:roll())
-			--mrotation.set_yaw_pitch_roll(rot, rot:yaw() + yaw, rot:pitch() + pitch, rot:roll() + roll)
-		else
-			mrotation.set_yaw_pitch_roll(rot, rot:yaw() + 28, rot:pitch() - 82, rot:roll())
-			--mrotation.set_yaw_pitch_roll(rot, rot:yaw() + yaw, rot:pitch() + pitch, rot:roll() + roll)
-		end
+		mrotation.set_yaw_pitch_roll(rot, rot:yaw() + self._yaw, rot:pitch() + self._pitch, rot:roll())
 
 		self._modifier:set_target_position(displacement)
 		self._modifier:set_target_rotation(rot)
