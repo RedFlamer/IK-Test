@@ -63,7 +63,7 @@ function PlayerAnimationData:update(unit)
 	end
 
 	local upper_seg_rel_t = self._machine:segment_relative_time(idstr_upper)
-	local anim_check = (self.still or self.move or self.dodge) and not self.zipline and not self.act and not self.melee and not self.reload and (not self.equip or upper_seg_rel_t > 0.6) and not self.heal and not self.interact
+	local anim_check = (self.still or self.move or self.dodge) and not self.zipline and (not self.upper_body_active or self.upper_body_empty or (self.switch_weapon or self.equip) and upper_seg_rel_t > 0.6 or self.recoil or self.upper_body_hurt)
 	if (self._weapon_displacement or alive(self._weapon_grip)) and anim_check then
 		if not self._modifier_on then
 			self._machine:force_modifier(idstr_weapon_hold)
