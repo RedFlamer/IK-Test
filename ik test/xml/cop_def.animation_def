@@ -7,7 +7,7 @@
 		</search>
 		<target mode="attach">
 			<target name="LeftHand"/>
-			<bone name="LeftShoulder" translate="0.4"/>
+			<bone name="LeftShoulder" translate="0.2"/>
 			<bone name="LeftArm" translate="0.4"/>
 			<bone name="LeftForeArm" translate="0.6"/>
 			<bone name="LeftForeArmRoll" translate="0.6"/>
