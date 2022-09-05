@@ -16,7 +16,7 @@ local ik_displacement = {
 	[Idstring("units/payday2/weapons/wpn_npc_saiga/wpn_npc_saiga"):key()] = Vector3(0, 6, 7),
 	[Idstring("units/payday2/weapons/wpn_npc_lmg_m249/wpn_npc_lmg_m249"):key()] = Vector3(0, 2, 5),
 	[Idstring("units/payday2/weapons/wpn_npc_benelli/wpn_npc_benelli"):key()] = Vector3(0, 6, 5),
-	[Idstring("units/payday2/weapons/wpn_npc_g36/wpn_npc_g36"):key()] = Vector3(0, -2, 4),
+	[Idstring("units/payday2/weapons/wpn_npc_g36/wpn_npc_g36"):key()] = Vector3(0, -2, 6),
 	[Idstring("units/payday2/weapons/wpn_npc_ump/wpn_npc_ump"):key()] = Vector3(0, -4, 7)
 }
 
