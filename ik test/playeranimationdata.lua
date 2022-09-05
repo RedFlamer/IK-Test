@@ -16,7 +16,7 @@ local ik_displacement = {
 	[Idstring("units/payday2/weapons/wpn_npc_saiga/wpn_npc_saiga"):key()] = Vector3(0, 6, 7),
 	[Idstring("units/payday2/weapons/wpn_npc_lmg_m249/wpn_npc_lmg_m249"):key()] = Vector3(0, 2, 5),
 	[Idstring("units/payday2/weapons/wpn_npc_benelli/wpn_npc_benelli"):key()] = Vector3(0, 6, 5),
-	[Idstring("units/payday2/weapons/wpn_npc_g36/wpn_npc_g36"):key()] = Vector3(0, -2, 6),
+	[Idstring("units/payday2/weapons/wpn_npc_g36/wpn_npc_g36"):key()] = Vector3(0, -2, 4),
 	[Idstring("units/payday2/weapons/wpn_npc_ump/wpn_npc_ump"):key()] = Vector3(0, -4, 7)
 }
 
@@ -35,15 +35,17 @@ local mvec3_sub = mvector3.subtract
 local mvec3_copy = mvector3.copy
 
 Hooks:PostHook(PlayerAnimationData, "init", "ik_init", function(self, unit)
-		self._machine = self._unit:anim_state_machine()
+	unit:set_extension_update_enabled(idstr_anim_data, false)
 
-		if self._machine:get_global("ntl") == 0 then -- get_modifier crashes if the modifier doesn't exist so just have a dumb bypass, sigh...
-			return unit:set_extension_update_enabled(idstr_anim_data, false)
-		end
+	self._machine = self._unit:anim_state_machine()
 
-		self._modifier = self._machine:get_modifier(idstr_weapon_hold)
+	if self._machine:get_global("ntl") == 0 then -- get_modifier crashes if the modifier doesn't exist so just have a dumb bypass, sigh...
+		return
 	end
-)
+
+	self._modifier = self._machine:get_modifier(idstr_weapon_hold)
+	self._unit:inventory():add_listener("anim_data", {"equip", "unequip"}, callback(self, self, "clbk_inventory"))
+end)
 
 -- aint nobody got time to restart constantly
 --[[
@@ -66,10 +68,42 @@ Hooks:Add("GameSetupUpdate", "asdf", function (t, dt)
 end)]]
 
 function PlayerAnimationData:update(unit)
+	local upper_seg_rel_t = self._machine:segment_relative_time(idstr_upper)
+	if (self.still or self.move or self.dodge) and not self.zipline and not self.act and (not self.upper_body_active or self.upper_body_empty or (self.switch_weapon or self.equip) and upper_seg_rel_t > 0.5 or self.recoil or self.upper_body_hurt) then
+		if not self._modifier_on then
+			self._machine:force_modifier(idstr_weapon_hold)
+			self._modifier_on = true
+		end
+
+		local weapon = self._equipped_unit
+		local rot = weapon:rotation()
+		local displacement = tmp_vec1
+		mvec3_set(displacement, self._grip_offset)
+		mvec3_rotate(displacement, rot)
+		mvec3_add(displacement, weapon:position())
+
+		--Draw:brush(Color.red:with_alpha(0.5)):sphere(displacement, 5)
+
+		mrotation.set_yaw_pitch_roll(rot, rot:yaw() + self._yaw, rot:pitch() + self._pitch, rot:roll())
+
+		self._modifier:set_target_position(displacement)
+		self._modifier:set_target_rotation(rot)
+	elseif self._modifier_on then
+		self._modifier_on = nil
+		self._machine:allow_modifier(idstr_weapon_hold)
+	end
+end
+
+function PlayerAnimationData:clbk_inventory(unit, event)
+	if not alive(unit) then
+		return
+	end
+
+	self._grip_offset = nil
+
 	local weapon = unit:inventory():equipped_unit()
-	if alive(weapon) and (not alive(self._equipped_unit) or self._equipped_unit ~= weapon) then
+	if weapon then
 		self._equipped_unit = weapon
-		self._grip_offset = nil
 		self._yaw = 28
 		self._pitch = -82
 
@@ -107,35 +141,11 @@ function PlayerAnimationData:update(unit)
 						end
 					end
 				else
-					-- Wait til assembly is complete
-					self._equipped_unit = nil
+					managers.enemy:add_delayed_clbk("clbk_inventory" .. tostring(unit:key()), callback(self, self, "clbk_inventory", unit, event), TimerManager:game():time() + 0.2)
 				end
 			end
 		end
 	end
 
-	local upper_seg_rel_t = self._machine:segment_relative_time(idstr_upper)
-	local anim_check = (self.still or self.move or self.dodge) and not self.zipline and not self.act and (not self.upper_body_active or self.upper_body_empty or (self.switch_weapon or self.equip) and upper_seg_rel_t > 0.5 or self.recoil or self.upper_body_hurt)
-	if self._grip_offset and anim_check then
-		if not self._modifier_on then
-			self._machine:force_modifier(idstr_weapon_hold)
-			self._modifier_on = true
-		end
-
-		local rot = weapon:rotation()
-		local displacement = tmp_vec1
-		mvec3_set(displacement, self._grip_offset)
-		mvec3_rotate(displacement, rot)
-		mvec3_add(displacement, weapon:position())
-
-		--Draw:brush(Color.red:with_alpha(0.5)):sphere(displacement, 5)
-
-		mrotation.set_yaw_pitch_roll(rot, rot:yaw() + self._yaw, rot:pitch() + self._pitch, rot:roll())
-
-		self._modifier:set_target_position(displacement)
-		self._modifier:set_target_rotation(rot)
-	elseif self._modifier_on then
-		self._modifier_on = nil
-		self._machine:allow_modifier(idstr_weapon_hold)
-	end
+	unit:set_extension_update_enabled(idstr_anim_data, self._grip_offset and true or false)
 end
