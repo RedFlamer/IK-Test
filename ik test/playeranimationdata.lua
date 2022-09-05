@@ -151,5 +151,5 @@ function PlayerAnimationData:clbk_inventory(unit, event)
 end
 
 function PlayerAnimationData:on_anim_freeze(state)
-	self._unit:set_extension_update_enabled(idstr_anim_data, state and self._grip_offset and true or false)
+	self._unit:set_extension_update_enabled(idstr_anim_data, not state and self._grip_offset and true or false)
 end
