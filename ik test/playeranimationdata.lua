@@ -20,19 +20,22 @@ local ik_displacement = {
 	[Idstring("units/payday2/weapons/wpn_npc_ump/wpn_npc_ump"):key()] = Vector3(0, -4, 7)
 }
 
-local base_displacement = Vector3(-8, 23, -6)
-local base_displacement_player = Vector3(-8, 0, -1)
-local base_displacement_player_v = Vector3(-11, 0, -1)
+local base_displacement = Vector3(-8, 18, -6)
+local base_displacement_player = Vector3(-8, -5, -1)
+local base_displacement_player_v = Vector3(-11, -5, -1)
 
 local tmp_vec1 = Vector3()
+local tmp_vec2 = Vector3()
+
+local mrot_set = mrotation.set_yaw_pitch_roll
 
 local mvec3_add = mvector3.add
+local mvec3_copy = mvector3.copy
 local mvec3_not_equal = mvector3.not_equal
 local mvec3_rotate = mvector3.rotate_with
 local mvec3_set = mvector3.set
 local mvec3_set_static = mvector3.set_static
 local mvec3_sub = mvector3.subtract
-local mvec3_copy = mvector3.copy
 
 Hooks:PostHook(PlayerAnimationData, "init", "ik_init", function(self, unit)
 	unit:set_extension_update_enabled(idstr_anim_data, false)
@@ -43,6 +46,7 @@ Hooks:PostHook(PlayerAnimationData, "init", "ik_init", function(self, unit)
 		return
 	end
 
+	self._obj_hand = self._unit:get_object(Idstring("LeftHand"))
 	self._modifier = self._machine:get_modifier(idstr_weapon_hold)
 	self._unit:inventory():add_listener("anim_data", {"equip", "unequip"}, callback(self, self, "clbk_inventory"))
 end)
@@ -77,14 +81,20 @@ function PlayerAnimationData:update(unit)
 
 		local weapon = self._equipped_unit
 		local rot = weapon:rotation()
+		local hand_pitch = self._obj_hand:rotation():pitch()
 		local displacement = tmp_vec1
 		mvec3_set(displacement, self._grip_offset)
 		mvec3_rotate(displacement, rot)
+		-- because a modifier with position enabled can only rotate the target bone we have to do this fuckery to account for the position difference between the LeftHand and a_weapon_left_front bones
+		mvec3_set_static(tmp_vec2, 0, -5 * math.sin(hand_pitch), 10 * math.sin(hand_pitch + 90))
+		mvec3_rotate(tmp_vec2, Rotation(rot:yaw()))
+		mvec3_add(displacement, tmp_vec2)
 		mvec3_add(displacement, weapon:position())
-
+		
 		--Draw:brush(Color.red:with_alpha(0.5)):sphere(displacement, 5)
+		--Draw:brush(Color.red:with_alpha(0.5)):sphere(self._unit:get_object(Idstring("a_weapon_left_front")):position(), 5)
 
-		mrotation.set_yaw_pitch_roll(rot, rot:yaw() + self._yaw, rot:pitch() + self._pitch, rot:roll())
+		mrot_set(rot, rot:yaw() + self._yaw, rot:pitch() + self._pitch, rot:roll())
 
 		self._modifier:set_target_position(displacement)
 		self._modifier:set_target_rotation(rot)
