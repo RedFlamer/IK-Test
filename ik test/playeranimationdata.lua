@@ -24,6 +24,9 @@ local base_displacement = Vector3(-8, 18, -6)
 local base_displacement_player = Vector3(-8, -5, -1)
 local base_displacement_player_v = Vector3(-11, -5, -1)
 
+local tmp_rot1 = Rotation()
+local tmp_rot2 = Rotation()
+
 local tmp_vec1 = Vector3()
 local tmp_vec2 = Vector3()
 
@@ -80,16 +83,25 @@ function PlayerAnimationData:update(unit)
 		end
 
 		local weapon = self._equipped_unit
-		local rot = weapon:rotation()
-		local hand_pitch = self._obj_hand:rotation():pitch()
+		local rot = tmp_rot1
+		local hand_rot = tmp_rot2
+
+		weapon:m_rotation(rot)
+		self._obj_hand:m_rotation(hand_rot)
+
+		local hand_pitch = hand_rot:pitch()
 		local displacement = tmp_vec1
 		mvec3_set(displacement, self._grip_offset)
 		mvec3_rotate(displacement, rot)
 		-- because a modifier with position enabled can only rotate the target bone we have to do this fuckery to account for the position difference between the LeftHand and a_weapon_left_front bones
 		mvec3_set_static(tmp_vec2, 0, -5 * math.sin(hand_pitch), 10 * math.sin(hand_pitch + 90))
-		mvec3_rotate(tmp_vec2, Rotation(rot:yaw()))
+		mrot_set(tmp_rot2, rot:yaw(), 0, 0)
+		mvec3_rotate(tmp_vec2, tmp_rot2)
 		mvec3_add(displacement, tmp_vec2)
-		mvec3_add(displacement, weapon:position())
+
+		weapon:m_position(tmp_vec2)
+
+		mvec3_add(displacement, tmp_vec2)
 		
 		--Draw:brush(Color.red:with_alpha(0.5)):sphere(displacement, 5)
 		--Draw:brush(Color.red:with_alpha(0.5)):sphere(self._unit:get_object(Idstring("a_weapon_left_front")):position(), 5)
