@@ -125,7 +125,6 @@ function PlayerAnimationData:clbk_inventory(unit, event)
 
 	local weapon = unit:inventory():equipped_unit()
 	if weapon then
-		self._equipped_unit = weapon
 		self._yaw = 28
 		self._pitch = -82
 
@@ -168,6 +167,8 @@ function PlayerAnimationData:clbk_inventory(unit, event)
 			end
 		end
 	end
+
+	self._equipped_unit = weapon
 
 	unit:set_extension_update_enabled(idstr_anim_data, self._grip_offset and true or false)
 end
