@@ -94,7 +94,7 @@ function PlayerAnimationData:update(unit)
 		mvec3_set(displacement, self._grip_offset)
 		mvec3_rotate(displacement, rot)
 		-- because a modifier with position enabled can only rotate the target bone we have to do this fuckery to account for the position difference between the LeftHand and a_weapon_left_front bones
-		mvec3_set_static(tmp_vec2, 0, -5 * math.sin(hand_pitch), 10 * math.sin(hand_pitch + 90))
+		mvec3_set_static(tmp_vec2, 0, -5 * math.sin(hand_pitch), 10 * math.cos(hand_pitch))
 		mrot_set(tmp_rot2, rot:yaw(), 0, 0)
 		mvec3_rotate(tmp_vec2, tmp_rot2)
 		mvec3_add(displacement, tmp_vec2)
