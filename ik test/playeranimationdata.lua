@@ -13,16 +13,18 @@ local ik_displacement = {
 	[Idstring("units/payday2/weapons/wpn_npc_shepheard/wpn_npc_shepheard"):key()] = Vector3(0, -8, 8),
 	[Idstring("units/payday2/weapons/wpn_npc_mp5_tactical/wpn_npc_mp5_tactical"):key()] = Vector3(0, -6, 6),
 	[Idstring("units/payday2/weapons/wpn_npc_sniper/wpn_npc_sniper"):key()] = Vector3(0, 6, 9),
-	[Idstring("units/payday2/weapons/wpn_npc_saiga/wpn_npc_saiga"):key()] = Vector3(0, 6, 7),
+	[Idstring("units/payday2/weapons/wpn_npc_saiga/wpn_npc_saiga"):key()] = Vector3(0, 2, 3),
 	[Idstring("units/payday2/weapons/wpn_npc_lmg_m249/wpn_npc_lmg_m249"):key()] = Vector3(0, 2, 5),
 	[Idstring("units/payday2/weapons/wpn_npc_benelli/wpn_npc_benelli"):key()] = Vector3(0, 6, 5),
 	[Idstring("units/payday2/weapons/wpn_npc_g36/wpn_npc_g36"):key()] = Vector3(0, -2, 6),
-	[Idstring("units/payday2/weapons/wpn_npc_ump/wpn_npc_ump"):key()] = Vector3(0, -4, 7)
+	[Idstring("units/payday2/weapons/wpn_npc_ump/wpn_npc_ump"):key()] = Vector3(0, -4, 7),
+	[Idstring("units/payday2/weapons/wpn_npc_scar_murkywater/wpn_npc_scar_murkywater"):key()] = Vector3(0, 0, 6),
+	[Idstring("units/pd2_dlc_chico/weapons/wpn_npc_sg417/wpn_npc_sg417"):key()] = Vector3(0, 0, 2)
 }
 
 local base_displacement = Vector3(-8, 23, -6)
 local base_displacement_player = Vector3(-8, 0, -1)
-local base_displacement_player_v = Vector3(-11, 0, -7)
+local base_displacement_player_v = Vector3(-7, 8, -4)
 
 local tmp_rot1 = Rotation()
 local tmp_rot2 = Rotation()
