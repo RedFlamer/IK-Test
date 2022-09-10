@@ -43,12 +43,12 @@ local mvec3_sub = mvector3.subtract
 Hooks:PostHook(PlayerAnimationData, "init", "ik_init", function(self, unit)
 	unit:set_extension_update_enabled(idstr_anim_data, false)
 
-	self._machine = self._unit:anim_state_machine()
-
-	if self._machine:get_global("ntl") == 0 then -- get_modifier crashes if the modifier doesn't exist so just have a dumb bypass, sigh...
+	-- Filter out menu and fps units
+	if not self._unit:inventory() or not self._unit:base() or self._unit:base().is_local_player then
 		return
 	end
 
+	self._machine = self._unit:anim_state_machine()
 	self._obj_hand = self._unit:get_object(Idstring("LeftHand"))
 	self._modifier = self._machine:get_modifier(idstr_weapon_hold)
 	self._unit:inventory():add_listener("anim_data", {"equip", "unequip"}, callback(self, self, "clbk_inventory"))
