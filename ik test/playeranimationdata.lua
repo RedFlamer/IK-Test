@@ -22,7 +22,7 @@ local ik_displacement = {
 
 local base_displacement = Vector3(-8, 18, -6)
 local base_displacement_player = Vector3(-8, -5, -1)
-local base_displacement_player_v = Vector3(-11, -5, -1)
+local base_displacement_player_v = Vector3(-11, 4, -7)
 
 local tmp_rot1 = Rotation()
 local tmp_rot2 = Rotation()
