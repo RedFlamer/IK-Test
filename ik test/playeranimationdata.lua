@@ -22,7 +22,7 @@ local ik_displacement = {
 	[Idstring("units/pd2_dlc_chico/weapons/wpn_npc_sg417/wpn_npc_sg417"):key()] = Vector3(0, 0, 2)
 }
 
-local base_displacement = Vector3(-8, 23, -6)
+local base_displacement = Vector3(-9, 23, -6)
 local base_displacement_player = Vector3(-8, 0, -1)
 local base_displacement_player_v = Vector3(-7, 8, -4)
 
@@ -96,7 +96,7 @@ function PlayerAnimationData:update(unit)
 		mvec3_set(displacement, self._grip_offset)
 		mvec3_rotate(displacement, rot)
 		-- because a modifier with position enabled can only rotate the target bone we have to do this fuckery to account for the position difference between the LeftHand and a_weapon_left_front bones
-		mvec3_set_static(tmp_vec2, -4 * math.abs(adj_value), -5 * adj_value, 5 * adj_value)
+		mvec3_set_static(tmp_vec2, -2 * adj_value, -5 * adj_value, 5 * adj_value)
 		mrot_set(tmp_rot2, rot:yaw(), 0, 0)
 		mvec3_rotate(tmp_vec2, tmp_rot2)
 		mvec3_add(displacement, tmp_vec2)
