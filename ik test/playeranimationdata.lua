@@ -22,8 +22,8 @@ local ik_displacement = {
 	[Idstring("units/pd2_dlc_chico/weapons/wpn_npc_sg417/wpn_npc_sg417"):key()] = Vector3(0, 0, 2)
 }
 
-local base_displacement = Vector3(-9, 23, -6)
-local base_displacement_player = Vector3(-8, 0, -1)
+local base_displacement = Vector3(-9, 23, -7)
+local base_displacement_player = Vector3(-8, 0, -2)
 local base_displacement_player_v = Vector3(-7, 8, -4)
 
 local tmp_rot1 = Rotation()
