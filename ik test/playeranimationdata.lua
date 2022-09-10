@@ -140,16 +140,17 @@ function PlayerAnimationData:clbk_inventory(unit, event)
 			local weapon_parts = weapon:base()._parts
 			if weapon_parts and not weapon:base().AKIMBO then
 				if weapon:base()._assembly_complete then
+					local rifle_hold = self._machine:get_global("rifle") > 0 or self._machine:get_global("bullpup") > 0
 					local vgrip = managers.weapon_factory:get_part_from_weapon_by_type("vertical_grip", weapon_parts)
-					local fgrip = managers.weapon_factory:get_part_from_weapon_by_type("underbarrel", weapon_parts) or managers.weapon_factory:get_part_from_weapon_by_type("foregrip", weapon_parts)
+					local fgrip = not vgrip and (rifle_hold and managers.weapon_factory:get_part_from_weapon_by_type("underbarrel", weapon_parts) or managers.weapon_factory:get_part_from_weapon_by_type("foregrip", weapon_parts))
 					local grip = vgrip or fgrip
 					if grip and alive(grip.unit) and mvec3_not_equal(weapon:position(), grip.unit:position()) then
 						local oobb = grip.unit:oobb()
-						self._grip_offset = true and oobb:center() or grip.unit:position()
+						self._grip_offset = oobb:center()
 						mvec3_sub(self._grip_offset, weapon:position())
 						mvec3_rotate(self._grip_offset, weapon:rotation():inverse())
-						local y = math.clamp(self._grip_offset.y + (vgrip and oobb:size().y * 0.5 or 0), 10, 30)
-						local z = math.clamp(self._grip_offset.z - (not vgrip and oobb:size().z * 0.5 or 0), -5, 3)
+						local y = math.clamp(self._grip_offset.y + oobb:size().y * (vgrip and 0.5 or 0), 10, 28)
+						local z = math.clamp(self._grip_offset.z - oobb:size().z * (fgrip and 0.5 or 0), -5, 3)
 						mvec3_set_static(self._grip_offset, 0, y, z) -- limit offset to avoid stretchy arms and inaccurate oobbs
 						--log(tostring(self._grip_offset))
 						mvec3_add(self._grip_offset, vgrip and base_displacement_player_v or base_displacement_player)
