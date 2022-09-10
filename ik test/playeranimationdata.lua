@@ -20,9 +20,9 @@ local ik_displacement = {
 	[Idstring("units/payday2/weapons/wpn_npc_ump/wpn_npc_ump"):key()] = Vector3(0, -4, 7)
 }
 
-local base_displacement = Vector3(-8, 18, -6)
-local base_displacement_player = Vector3(-8, -5, -1)
-local base_displacement_player_v = Vector3(-11, 4, -7)
+local base_displacement = Vector3(-8, 23, -6)
+local base_displacement_player = Vector3(-8, 0, -1)
+local base_displacement_player_v = Vector3(-11, 0, -7)
 
 local tmp_rot1 = Rotation()
 local tmp_rot2 = Rotation()
@@ -89,12 +89,12 @@ function PlayerAnimationData:update(unit)
 		weapon:m_rotation(rot)
 		self._obj_hand:m_rotation(hand_rot)
 
-		local hand_pitch = hand_rot:pitch()
+		local adj_value = math.cos(hand_rot:pitch())
 		local displacement = tmp_vec1
 		mvec3_set(displacement, self._grip_offset)
 		mvec3_rotate(displacement, rot)
 		-- because a modifier with position enabled can only rotate the target bone we have to do this fuckery to account for the position difference between the LeftHand and a_weapon_left_front bones
-		mvec3_set_static(tmp_vec2, 0, -5 * math.sin(hand_pitch), 10 * math.cos(hand_pitch))
+		mvec3_set_static(tmp_vec2, -4 * adj_value, -5 * adj_value, 5 * adj_value)
 		mrot_set(tmp_rot2, rot:yaw(), 0, 0)
 		mvec3_rotate(tmp_vec2, tmp_rot2)
 		mvec3_add(displacement, tmp_vec2)
@@ -170,9 +170,16 @@ function PlayerAnimationData:clbk_inventory(unit, event)
 
 	self._equipped_unit = weapon
 
-	unit:set_extension_update_enabled(idstr_anim_data, self._grip_offset and true or false)
+	self:chk_update_state()
 end
 
 function PlayerAnimationData:on_anim_freeze(state)
-	self._unit:set_extension_update_enabled(idstr_anim_data, not state and self._grip_offset and true or false)
+	self._frozen = state
+	self:chk_update_state()
+end
+
+function PlayerAnimationData:chk_update_state()
+	local state = not self._frozen and self._grip_offset and true or false
+
+	self._unit:set_extension_update_enabled(idstr_anim_data, state)
 end
