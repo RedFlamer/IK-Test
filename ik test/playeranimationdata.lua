@@ -46,7 +46,8 @@ Hooks:PostHook(PlayerAnimationData, "init", "ik_init", function(self, unit)
 	unit:set_extension_update_enabled(idstr_anim_data, false)
 
 	-- Filter out menu and fps units
-	if not self._unit:inventory() or not self._unit:base() or self._unit:base().is_local_player then
+	local meta = self._unit:base() and getmetatable(self._unit:base())
+	if not meta or meta ~= CopBase and meta ~= HuskCopBase and meta ~= TeamAIBase and meta ~= HuskTeamAIBase and meta ~= HuskPlayerBase then
 		return
 	end
 
