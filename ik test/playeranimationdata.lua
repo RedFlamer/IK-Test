@@ -46,15 +46,15 @@ Hooks:PostHook(PlayerAnimationData, "init", "ik_init", function(self, unit)
 	unit:set_extension_update_enabled(idstr_anim_data, false)
 
 	-- Filter out menu and fps units
-	local meta = self._unit:base() and getmetatable(self._unit:base())
+	local meta = unit:base() and getmetatable(unit:base())
 	if not meta or meta ~= CopBase and meta ~= HuskCopBase and meta ~= TeamAIBase and meta ~= HuskTeamAIBase and meta ~= HuskPlayerBase then
 		return
 	end
 
-	self._machine = self._unit:anim_state_machine()
-	self._obj_hand = self._unit:get_object(Idstring("LeftHand"))
+	self._machine = unit:anim_state_machine()
+	self._obj_hand = unit:get_object(Idstring("LeftHand"))
 	self._modifier = self._machine:get_modifier(idstr_weapon_hold)
-	self._unit:inventory():add_listener("anim_data", {"equip", "unequip"}, callback(self, self, "clbk_inventory"))
+	unit:inventory():add_listener("anim_data", {"equip", "unequip"}, callback(self, self, "clbk_inventory"))
 end)
 
 -- aint nobody got time to restart constantly
